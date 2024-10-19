@@ -5,7 +5,7 @@
 
 #include <BaseFunc.h>
 
-#define CHARACTER_SPEED 0.2
+#define CHARACTER_SPEED 0.4
 
 enum Mode {
 	INIT,

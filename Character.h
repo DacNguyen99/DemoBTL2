@@ -5,6 +5,7 @@
 
 #include "BaseFunc.h"
 #include "BaseObject.h"
+#include "Ball.h"
 
 #define FRAMES 4
 
@@ -28,13 +29,16 @@ public:
 	void HandleInputAction(SDL_Event events, SDL_Renderer* screen);
 	void set_clips();
 
-	void DoCharacter(BaseObject* base);
+	void DoCharacter(BaseObject* base, BallObject& ball);
 	void CheckToMap();
-	void CheckToOtherCharacters(BaseObject* base);
+	//void CheckToOtherCharacters(BaseObject* base);
+	void HandleBallCollision(BallObject& ball);
 
 	float GetXPos() { return x_pos_; };
 	float GetYPos() { return y_pos_; };
 	int GetWidthFrame() { return width_frame_; };
+
+	void Reset(const int pos_x, const int pos_y, const int num);
 
 private:
 	float x_val_;

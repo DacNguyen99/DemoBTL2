@@ -112,6 +112,25 @@ int main(int argc, char* argv[])
 
             g_background.HandleUserInput(g_event, g_screen);
 
+            if (g_background.GetMode() == INIT)
+            {
+                ball.Reset();
+
+                p_character_0.Reset(70, 177, 0);
+                p_character_1.Reset(172, 75, 1);
+                p_character_2.Reset(275, 177, 2);
+                p_character_3.Reset(70, 435, 3);
+                p_character_4.Reset(172, 539, 4);
+                p_character_5.Reset(275, 435, 5);
+
+                p_character_0.LoadImg("res/characters/loren/front.png", g_screen, &g_background);
+                p_character_1.LoadImg("res/characters/loren/front.png", g_screen, &g_background);
+                p_character_2.LoadImg("res/characters/loren/front.png", g_screen, &g_background);
+                p_character_3.LoadImg("res/characters/argen/back.png", g_screen, &g_background);
+                p_character_4.LoadImg("res/characters/argen/back.png", g_screen, &g_background);
+                p_character_5.LoadImg("res/characters/argen/back.png", g_screen, &g_background);
+            }
+
             if (g_background.GetMode() == PVP || g_background.GetMode() == PVC)
             {
                 // handle changing player
@@ -194,41 +213,22 @@ int main(int argc, char* argv[])
 
         if (g_background.GetMode() == PVP || g_background.GetMode() == PVC)
         {
-            switch (red_control)
-            {
-            case 0:
-                p_character_0.DoCharacter(&g_background);
-                break;
+            ball.Move();
 
-            case 1:
-                p_character_1.DoCharacter(&g_background);
-                break;
+            p_character_0.DoCharacter(&g_background, ball);
+            p_character_1.DoCharacter(&g_background, ball);
+            p_character_2.DoCharacter(&g_background, ball);
+            p_character_3.DoCharacter(&g_background, ball);
+            p_character_4.DoCharacter(&g_background, ball);
+            p_character_5.DoCharacter(&g_background, ball);
+            
 
-            case 2:
-                p_character_2.DoCharacter(&g_background);
-                break;
-
-            default:
-                break;
-            }
-
-            switch (blue_control)
-            {
-            case 3:
-                p_character_3.DoCharacter(&g_background);
-                break;
-
-            case 4:
-                p_character_4.DoCharacter(&g_background);
-                break;
-
-            case 5:
-                p_character_5.DoCharacter(&g_background);
-                break;
-
-            default:
-                break;
-            }
+            /*ball.CheckToCharacter(&p_character_0);
+            ball.CheckToCharacter(&p_character_1);
+            ball.CheckToCharacter(&p_character_2);
+            ball.CheckToCharacter(&p_character_3);
+            ball.CheckToCharacter(&p_character_4);
+            ball.CheckToCharacter(&p_character_5);*/
 
             p_character_0.Show(g_screen, &g_background);
             p_character_1.Show(g_screen, &g_background);

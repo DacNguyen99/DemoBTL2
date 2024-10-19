@@ -336,7 +336,7 @@ void CharacterObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen)
 	}
 }
 
-void CharacterObject::DoCharacter(BaseObject* base)
+void CharacterObject::DoCharacter(BaseObject* base, BallObject& ball)
 {
 	x_val_ = 0;
 	y_val_ = 0;
@@ -360,6 +360,8 @@ void CharacterObject::DoCharacter(BaseObject* base)
 
 	CheckToMap();
 	//CheckToOtherCharacters(base);
+
+	HandleBallCollision(ball);
 
 	x_pos_ += x_val_;
 	y_pos_ += y_val_;
@@ -394,61 +396,158 @@ void CharacterObject::CheckToMap()
 	}
 }
 
-void CharacterObject::CheckToOtherCharacters(BaseObject* base)
+//void CharacterObject::CheckToOtherCharacters(BaseObject* base)
+//{
+//	for (int i = 0; i < 6; i++)
+//	{
+//		if (i == num_)
+//		{
+//			continue;
+//		}
+//		else
+//		{
+//			// A.max.x < B.min.x && A.min.x > B.max.x && A.max.y < B.min.y && A.min.y > B.max.y
+//			// check if there is a collison
+//			if (x_pos_ + width_frame_ < base->GetPosX(i) || 
+//				x_pos_ > base->GetPosX(i) + base->GetWidth(i) || 
+//				y_pos_ < base->GetPosY(i) + height_frame_ || 
+//				y_pos_ + height_frame_ > base->GetPosY(i)) 
+//			{
+//				continue;
+//			}
+//			else {
+//				// there is collison, check direction
+//				std::cout << "collison" << std::endl;
+//
+//				// right
+//				if (x_val_ > 0)
+//				{
+//					x_pos_ = base->GetPosX(i) - base->GetWidth(i);
+//					x_val_ = 0;
+//					continue;
+//				}
+//
+//				// left
+//				if (x_val_ < 0)
+//				{
+//					x_pos_ = base->GetPosX(i) + base->GetWidth(i);
+//					x_val_ = 0;
+//					continue;
+//				}
+//
+//				// up
+//				if (y_val_ < 0)
+//				{
+//					y_pos_ = base->GetPosY(i) + height_frame_;
+//					y_pos_ = 0;
+//					continue;
+//				}
+//
+//				// down
+//				if (y_val_ > 0)
+//				{
+//					y_pos_ = base->GetPosY(i) - height_frame_;\
+//					y_pos_ = 0;
+//					continue;
+//				}
+//			}
+//		}
+//	}
+//}
+
+// Function to check collision between the ball and the player
+bool CheckCollision(const SDL_Rect& ball_rect, const SDL_Rect& player_rect)
 {
-	for (int i = 0; i < 6; i++)
+	// Check if the two rectangles overlap (simple AABB collision detection)
+	if (ball_rect.x + ball_rect.w < player_rect.x ||
+		ball_rect.x > player_rect.x + player_rect.w ||
+		ball_rect.y + ball_rect.h < player_rect.y ||
+		ball_rect.y > player_rect.y + player_rect.h)
 	{
-		if (i == num_)
-		{
-			continue;
-		}
-		else
-		{
-			// A.max.x < B.min.x && A.min.x > B.max.x && A.max.y < B.min.y && A.min.y > B.max.y
-			// check if there is a collison
-			if (x_pos_ + width_frame_ < base->GetPosX(i) || 
-				x_pos_ > base->GetPosX(i) + base->GetWidth(i) || 
-				y_pos_ < base->GetPosY(i) + height_frame_ || 
-				y_pos_ + height_frame_ > base->GetPosY(i)) 
-			{
-				continue;
-			}
-			else {
-				// there is collison, check direction
-				std::cout << "collison" << std::endl;
-
-				// right
-				if (x_val_ > 0)
-				{
-					x_pos_ = base->GetPosX(i) - base->GetWidth(i);
-					x_val_ = 0;
-					continue;
-				}
-
-				// left
-				if (x_val_ < 0)
-				{
-					x_pos_ = base->GetPosX(i) + base->GetWidth(i);
-					x_val_ = 0;
-					continue;
-				}
-
-				// up
-				if (y_val_ < 0)
-				{
-					y_pos_ = base->GetPosY(i) + height_frame_;
-					y_pos_ = 0;
-					continue;
-				}
-
-				// down
-				if (y_val_ > 0)
-				{
-					y_pos_ = base->GetPosY(i) - height_frame_;\
-					y_pos_ = 0;
-					continue;
-				}
-			}
-		}
+		return false; // No collision
 	}
+	return true; // Collision detected
+}
+
+void CharacterObject::HandleBallCollision(BallObject& ball)
+{
+	// Get the bounding rectangles for the player and the ball
+	SDL_Rect player_rect = { x_pos_, y_pos_, width_frame_, height_frame_ };
+	SDL_Rect ball_rect = ball.GetRect();
+
+	// Check for collision
+	if (CheckCollision(ball_rect, player_rect))
+	{
+		float player_center_x = x_pos_ + width_frame_ / 2;
+		float player_center_y = y_pos_ + height_frame_ / 2;
+
+		float ball_center_x = ball_rect.x + ball_rect.w / 2;
+		float ball_center_y = ball_rect.y + ball_rect.h / 2;
+
+		float vec_x = ball_center_x - player_center_x;
+		float vec_y = ball_center_y - player_center_y;
+
+		float angle = atan2(vec_y, vec_x);
+
+		float speed = 1.0f;
+
+		ball.SetXVal(speed * cos(angle));
+		ball.SetYVal(speed * sin(angle));
+	}
+}
+
+void CharacterObject::Reset(const int pos_x, const int pos_y, const int num)
+{
+	x_val_ = 0;
+	y_val_ = 0;
+
+	x_pos_ = pos_x;
+	y_pos_ = pos_y;
+
+	frame_ = 0;
+
+	width_frame_ = 0;
+	height_frame_ = 0;
+
+	switch (num)
+	{
+	case 0:
+		status_ = WALK_DOWN;
+		base_->UpdateCharacterPos(num, pos_x, pos_y);
+		break;
+
+	case 1:
+		status_ = WALK_DOWN;
+		base_->UpdateCharacterPos(num, pos_x, pos_y);
+		break;
+
+	case 2:
+		status_ = WALK_DOWN;
+		base_->UpdateCharacterPos(num, pos_x, pos_y);
+		break;
+
+	case 3:
+		status_ = WALK_UP;
+		base_->UpdateCharacterPos(num, pos_x, pos_y);
+		break;
+
+	case 4:
+		status_ = WALK_UP;
+		base_->UpdateCharacterPos(num, pos_x, pos_y);
+		break;
+
+	case 5:
+		status_ = WALK_UP;
+		base_->UpdateCharacterPos(num, pos_x, pos_y);
+		break;
+
+	default:
+		break;
+	}
+
+	input_type_.left_ = 0;
+	input_type_.right_ = 0;
+	input_type_.up_ = 0;
+	input_type_.down_ = 0;
+	num_ = num;
 }
