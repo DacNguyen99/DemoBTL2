@@ -6,7 +6,9 @@ BallObject::BallObject(const int pos_x, const int pos_y)
 	y_pos_ = pos_y;
 	x_val_ = 0;
 	y_val_ = 0;
-    ball_rect_ = {pos_x, pos_y, 20, 21};
+    ball_rect_ = {pos_x, pos_y, 21, 20};
+    red_goal_ = false;
+    blue_goal_ = false;
 }
 
 BallObject::~BallObject()
@@ -62,6 +64,23 @@ void BallObject::Reset()
     x_pos_ = 168.5f;
     y_pos_ = 304.0f;
 
-    ball_rect_ = { (int)x_pos_, (int)y_pos_, 20, 21 };
+    ball_rect_ = { (int)x_pos_, (int)y_pos_, 21, 20 };
+
+    red_goal_ = false;
+    blue_goal_ = false;
 }
 
+void BallObject::GoalCheck()
+{
+    if (y_pos_ == TOP_Y && (x_pos_ >= 154 && x_pos_ <= 185))
+    {
+        std::cout << "red" << std::endl;
+        blue_goal_ = true;
+    }
+
+    if (y_pos_ == (BOTTOM_Y - ball_rect_.h) && (x_pos_ >= 154 && x_pos_ <= 185))
+    {
+        std::cout << "blue" << std::endl;
+        red_goal_ = true;
+    }
+}

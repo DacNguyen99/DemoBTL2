@@ -489,7 +489,7 @@ void CharacterObject::HandleBallCollision(BallObject& ball)
 
 		float angle = atan2(vec_y, vec_x);
 
-		float speed = 1.0f;
+		float speed = 0.6f;
 
 		ball.SetXVal(speed * cos(angle));
 		ball.SetYVal(speed * sin(angle));

@@ -20,7 +20,6 @@ public:
 	void Show(SDL_Renderer* des);
 	void Move();
 	void CheckToMap();
-	//void CheckToCharacter(CharacterObject* player);
 
 	// Getter for ball rectangle (bounding box)
 	SDL_Rect GetRect() const { return ball_rect_; }
@@ -35,6 +34,13 @@ public:
 
 	void Reset();
 
+	void GoalCheck();
+
+	bool CheckRedGoal() { return red_goal_; };
+	bool CheckBlueGoal() { return blue_goal_; };
+	void SetRedGoal() { red_goal_ = false; };
+	void SetBlueGoal() { blue_goal_ = false; };
+
 private:
 	float x_val_;
 	float y_val_;
@@ -43,6 +49,9 @@ private:
 	float y_pos_;
 
 	SDL_Rect ball_rect_;
+
+	bool red_goal_;
+	bool blue_goal_;
 };
 
 #endif

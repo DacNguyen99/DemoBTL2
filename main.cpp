@@ -5,6 +5,7 @@
 #include <iomanip>
 
 BaseObject g_background;
+SDL_Color textColor = { 255, 255, 255 };  // White color
 
 bool InitData()
 {
@@ -39,6 +40,11 @@ bool InitData()
         }
     }
 
+    if (TTF_Init() == -1) {
+        std::cerr << "Error initializing SDL_ttf: " << TTF_GetError() << std::endl;
+        return -1;
+    }
+
     return success;
 }
 
@@ -63,6 +69,13 @@ int main(int argc, char* argv[])
 
     if (g_background.SetBackground(g_screen) == false)
     {
+        return -1;
+    }
+
+    // Load the font
+    TTF_Font* font = TTF_OpenFont("res/abc.ttf", 16);  // 24 is the font size
+    if (!font) {
+        std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
         return -1;
     }
 
@@ -101,6 +114,41 @@ int main(int argc, char* argv[])
     bool is_quit = false;
     int red_control = 0;
     int blue_control = 3;
+
+    int red_score = 0;
+    int blue_score = 0;
+
+    SDL_Surface* redSurface = TTF_RenderText_Solid(font, std::to_string(red_score).c_str(), textColor);
+    if (!redSurface) {
+        std::cerr << "Unable to render text surface: " << TTF_GetError() << std::endl;
+    }
+    SDL_Surface* blueSurface = TTF_RenderText_Solid(font, std::to_string(blue_score).c_str(), textColor);
+    if (!blueSurface) {
+        std::cerr << "Unable to render text surface: " << TTF_GetError() << std::endl;
+    }
+
+    // Create texture from the surface
+    SDL_Texture* redTexture = SDL_CreateTextureFromSurface(g_screen, redSurface);
+    if (!redTexture) {
+        std::cerr << "Unable to create texture from rendered text: " << SDL_GetError() << std::endl;
+    }
+    SDL_Texture* blueTexture = SDL_CreateTextureFromSurface(g_screen, blueSurface);
+    if (!blueTexture) {
+        std::cerr << "Unable to create texture from rendered text: " << SDL_GetError() << std::endl;
+    }
+
+    // Get the width and height of the text
+    int redScoreWidth = 0;
+    int redScoreHeight = 0;
+    SDL_QueryTexture(redTexture, NULL, NULL, &redScoreWidth, &redScoreHeight);
+    int blueScoreWidth = 0;
+    int blueScoreHeight = 0;
+    SDL_QueryTexture(blueTexture, NULL, NULL, &blueScoreWidth, &blueScoreHeight);
+
+    // Define the destination rectangle for the text on the screen
+    SDL_Rect redQuad = { 276, 12, redScoreWidth, redScoreHeight };
+    SDL_Rect blueQuad = { 308, 12, blueScoreWidth, blueScoreHeight };
+
     while (!is_quit)
     {
         while (SDL_PollEvent(&g_event) != 0)
@@ -129,6 +177,12 @@ int main(int argc, char* argv[])
                 p_character_3.LoadImg("res/characters/argen/back.png", g_screen, &g_background);
                 p_character_4.LoadImg("res/characters/argen/back.png", g_screen, &g_background);
                 p_character_5.LoadImg("res/characters/argen/back.png", g_screen, &g_background);
+
+                red_control = 0;
+                blue_control = 3;
+
+                red_score = 0;
+                blue_score = 0;
             }
 
             if (g_background.GetMode() == PVP || g_background.GetMode() == PVC)
@@ -214,6 +268,25 @@ int main(int argc, char* argv[])
         if (g_background.GetMode() == PVP || g_background.GetMode() == PVC)
         {
             ball.Move();
+            ball.GoalCheck();
+
+            if (ball.CheckRedGoal())
+            {
+                // handle red goal
+                red_score += 1;
+                redSurface = TTF_RenderText_Solid(font, std::to_string(red_score).c_str(), textColor);
+                redTexture = SDL_CreateTextureFromSurface(g_screen, redSurface);
+                ball.SetRedGoal();
+            }
+
+            if (ball.CheckBlueGoal())
+            {
+                // handle blue goal
+                blue_score += 1;
+                blueSurface = TTF_RenderText_Solid(font, std::to_string(blue_score).c_str(), textColor);
+                blueTexture = SDL_CreateTextureFromSurface(g_screen, blueSurface);
+                ball.SetBlueGoal();
+            }
 
             p_character_0.DoCharacter(&g_background, ball);
             p_character_1.DoCharacter(&g_background, ball);
@@ -221,14 +294,9 @@ int main(int argc, char* argv[])
             p_character_3.DoCharacter(&g_background, ball);
             p_character_4.DoCharacter(&g_background, ball);
             p_character_5.DoCharacter(&g_background, ball);
-            
 
-            /*ball.CheckToCharacter(&p_character_0);
-            ball.CheckToCharacter(&p_character_1);
-            ball.CheckToCharacter(&p_character_2);
-            ball.CheckToCharacter(&p_character_3);
-            ball.CheckToCharacter(&p_character_4);
-            ball.CheckToCharacter(&p_character_5);*/
+            SDL_RenderCopy(g_screen, redTexture, NULL, &redQuad);
+            SDL_RenderCopy(g_screen, blueTexture, NULL, &blueQuad);
 
             p_character_0.Show(g_screen, &g_background);
             p_character_1.Show(g_screen, &g_background);
@@ -243,6 +311,13 @@ int main(int argc, char* argv[])
         SDL_RenderPresent(g_screen);
     }
 
+    // Free the surface as it's no longer needed
+    SDL_FreeSurface(redSurface);
+    SDL_FreeSurface(blueSurface);
+    SDL_DestroyTexture(redTexture);
+    SDL_DestroyTexture(blueTexture);
+    TTF_CloseFont(font);
+    TTF_Quit();
     Close();
 
 	return 0;
