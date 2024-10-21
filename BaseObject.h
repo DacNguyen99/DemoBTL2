@@ -33,6 +33,7 @@ public:
 	bool SetBackground(SDL_Renderer* screen);
 	void UpdateCharacterPos(int index, float pos_x, float pos_y) { characters_pos_x_[index] = pos_x; characters_pos_y_[index] = pos_y; };
 	void UpdateWidthFrame(int index, int width_frame) { characters_width_frame[index] = width_frame; };
+    void LoadSound();
 
 	float GetPosX(int index) { return characters_pos_x_[index]; };
 	float GetPosY(int index) { return characters_pos_y_[index]; };

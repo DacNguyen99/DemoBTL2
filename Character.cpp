@@ -474,10 +474,14 @@ void CharacterObject::HandleBallCollision(BallObject& ball)
 	// Get the bounding rectangles for the player and the ball
 	SDL_Rect player_rect = { x_pos_, y_pos_, width_frame_, height_frame_ };
 	SDL_Rect ball_rect = ball.GetRect();
+    Mix_Chunk *_board;
+    _board = Mix_LoadWAV("res/board.wav");
 
 	// Check for collision
 	if (CheckCollision(ball_rect, player_rect))
 	{
+        // Play the hit sound
+        Mix_PlayChannel(-1, _board, 0);
 		float player_center_x = x_pos_ + width_frame_ / 2;
 		float player_center_y = y_pos_ + height_frame_ / 2;
 

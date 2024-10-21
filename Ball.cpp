@@ -37,22 +37,29 @@ void BallObject::Move() {
 }
 
 void BallObject::CheckToMap() {
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+    Mix_Chunk *_board;
+    _board = Mix_LoadWAV("res/board.wav");
     if (x_pos_ < LEFT_X) {
         x_pos_ = LEFT_X;
         x_val_ = -x_val_;
+        Mix_PlayChannel(-1, _board, 0);
     }
     else if (x_pos_ + ball_rect_.w > RIGHT_X) {
         x_pos_ = RIGHT_X - ball_rect_.w;
         x_val_ = -x_val_;
+        Mix_PlayChannel(-1, _board, 0);
     }
 
     if (y_pos_ < TOP_Y) {
         y_pos_ = TOP_Y;
         y_val_ = -y_val_;
+        Mix_PlayChannel(-1, _board, 0);
     }
     else if (y_pos_ + ball_rect_.h > BOTTOM_Y) {
         y_pos_ = BOTTOM_Y - ball_rect_.h;
         y_val_ = -y_val_;
+        Mix_PlayChannel(-1, _board, 0);
     }
 }
 

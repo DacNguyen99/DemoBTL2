@@ -62,6 +62,41 @@ void Close()
     SDL_Quit();
 }
 
+void LoadSound(Mix_Music*& _music, Mix_Chunk*& _board, Mix_Chunk*& _hit, Mix_Chunk*& _goal){
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096))
+    {
+        std::cerr << "MIX error: " << Mix_GetError() << std::endl;
+        exit(4);
+    }
+
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+    _music = Mix_LoadMUS("res/mus1.mp3");
+    if (!_music)
+    {
+        std::cerr << "MIX error: " << Mix_GetError() << std::endl;
+        exit(4);
+    }
+    _board = Mix_LoadWAV("res/board.wav");
+    if (!_board)
+    {
+        std::cerr << "MIX error: " << Mix_GetError() << std::endl;
+        exit(4);
+    }
+    _hit = Mix_LoadWAV("res/hit.wav");
+    if (!_hit)
+    {
+        std::cerr << "MIX error: " << Mix_GetError() << std::endl;
+        exit(4);
+    }
+    _goal = Mix_LoadWAV("res/goal.wav");
+    if (!_goal)
+    {
+        std::cerr << "MIX error: " << Mix_GetError() << std::endl;
+        exit(4);
+    }
+    // Mix_PlayMusic(_music, -1);
+}
+
 int main(int argc, char* argv[])
 {
     if (InitData() == false)
@@ -78,6 +113,9 @@ int main(int argc, char* argv[])
         std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
         return -1;
     }
+    Mix_Music *_music;
+	Mix_Chunk *_board, *_hit, *_goal;
+    LoadSound(_music, _board, _hit, _goal);
 
     CharacterObject p_character_0(&g_background, 70, 177, 0);
     CharacterObject p_character_1(&g_background, 172, 75, 1);
@@ -148,9 +186,13 @@ int main(int argc, char* argv[])
     // Define the destination rectangle for the text on the screen
     SDL_Rect redQuad = { 276, 12, redScoreWidth, redScoreHeight };
     SDL_Rect blueQuad = { 308, 12, blueScoreWidth, blueScoreHeight };
-
+    
     while (!is_quit)
     {
+        // Play music if not already playing
+        if (Mix_PlayingMusic() == 0) {
+            Mix_PlayMusic(_music, -1);
+        }
         while (SDL_PollEvent(&g_event) != 0)
         {
             if (g_event.type == SDL_QUIT)
@@ -163,7 +205,6 @@ int main(int argc, char* argv[])
             if (g_background.GetMode() == INIT)
             {
                 ball.Reset();
-
                 p_character_0.Reset(70, 177, 0);
                 p_character_1.Reset(172, 75, 1);
                 p_character_2.Reset(275, 177, 2);
@@ -280,6 +321,7 @@ int main(int argc, char* argv[])
                 red_score += 1;
                 redSurface = TTF_RenderText_Solid(font, std::to_string(red_score).c_str(), textColor);
                 redTexture = SDL_CreateTextureFromSurface(g_screen, redSurface);
+                Mix_PlayChannel(-1, _goal, 0);  // Play goal sound
                 ball.SetRedGoal();
             }
 
@@ -289,6 +331,7 @@ int main(int argc, char* argv[])
                 blue_score += 1;
                 blueSurface = TTF_RenderText_Solid(font, std::to_string(blue_score).c_str(), textColor);
                 blueTexture = SDL_CreateTextureFromSurface(g_screen, blueSurface);
+                Mix_PlayChannel(-1, _goal, 0);  // Play goal sound
                 ball.SetBlueGoal();
             }
 
