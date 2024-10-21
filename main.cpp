@@ -183,6 +183,10 @@ int main(int argc, char* argv[])
 
                 red_score = 0;
                 blue_score = 0;
+                redSurface = TTF_RenderText_Solid(font, std::to_string(red_score).c_str(), textColor);
+                redTexture = SDL_CreateTextureFromSurface(g_screen, redSurface);
+                blueSurface = TTF_RenderText_Solid(font, std::to_string(blue_score).c_str(), textColor);
+                blueTexture = SDL_CreateTextureFromSurface(g_screen, blueSurface);
             }
 
             if (g_background.GetMode() == PVP || g_background.GetMode() == PVC)
@@ -286,6 +290,17 @@ int main(int argc, char* argv[])
                 blueSurface = TTF_RenderText_Solid(font, std::to_string(blue_score).c_str(), textColor);
                 blueTexture = SDL_CreateTextureFromSurface(g_screen, blueSurface);
                 ball.SetBlueGoal();
+            }
+
+            // check win
+            if (red_score == 3)
+            {
+                g_background.SetMode(RED);
+            }
+
+            if (blue_score == 3)
+            {
+                g_background.SetMode(BLUE);
             }
 
             p_character_0.DoCharacter(&g_background, ball);

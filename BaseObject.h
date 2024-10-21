@@ -11,6 +11,8 @@ enum Mode {
 	INIT,
 	PVC,
 	PVP,
+	RED,
+	BLUE,
 };
 
 class BaseObject
@@ -22,6 +24,7 @@ public:
 	SDL_Rect GetRect() { return rect_; }
 	SDL_Texture* GetObject() const { return p_object_; }
 	Mode GetMode() { return mode_; };
+	void SetMode(Mode mode) { mode_ = mode; };
 
 	virtual bool LoadImg(std::string path, SDL_Renderer* screen);
 	void Render(SDL_Renderer* des, const SDL_Rect* clip = NULL);

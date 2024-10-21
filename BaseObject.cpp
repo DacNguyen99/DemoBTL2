@@ -45,9 +45,9 @@ void BaseObject::Render(SDL_Renderer* des, const SDL_Rect* clip)
 
 void BaseObject::HandleUserInput(SDL_Event events, SDL_Renderer* screen)
 {
-	if (events.type == SDL_MOUSEBUTTONDOWN)
+	if (mode_ == INIT)
 	{
-		if (mode_ == INIT)
+		if (events.type == SDL_MOUSEBUTTONDOWN)
 		{
 			if (events.button.button == SDL_BUTTON_LEFT)
 			{
@@ -66,7 +66,10 @@ void BaseObject::HandleUserInput(SDL_Event events, SDL_Renderer* screen)
 				}
 			}
 		}
-		else
+	}
+	else
+	{
+		if (events.type == SDL_MOUSEBUTTONDOWN)
 		{
 			if (events.button.button == SDL_BUTTON_RIGHT)
 			{
@@ -74,12 +77,12 @@ void BaseObject::HandleUserInput(SDL_Event events, SDL_Renderer* screen)
 				std::cout << "init \n";
 			}
 		}
-		
-		if (SetBackground(screen) == false)
-		{
-			std::cout << "set bg fail \n";
-			return;
-		}
+	}
+
+	if (SetBackground(screen) == false)
+	{
+		std::cout << "set bg fail \n";
+		return;
 	}
 }
 
@@ -106,6 +109,20 @@ bool BaseObject::SetBackground(SDL_Renderer* screen)
 		if (LoadImg("res/field1.png", screen) == false)
 		{
 			std::cout << "load pvp fail \n";
+			ret = false;
+		}
+		break;
+	case RED:
+		if (LoadImg("res/rwin.png", screen) == false)
+		{
+			std::cout << "load red fail \n";
+			ret = false;
+		}
+		break;
+	case BLUE:
+		if (LoadImg("res/bwin.png", screen) == false)
+		{
+			std::cout << "load blue fail \n";
 			ret = false;
 		}
 		break;
